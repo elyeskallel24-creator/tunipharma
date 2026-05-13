@@ -135,10 +135,11 @@ export const adminListAll = createServerFn({ method: "POST" })
     }).parse(d))
   .handler(async ({ data }) => {
     await requireAdmin(data.token);
-    const { data: rows, error } = await supabaseAdmin
-      .from(data.table as AllowedTable | "orders")
+    const orderCol = data.table === "settings" ? "key" : "created_at";
+    const { data: rows, error } = await (supabaseAdmin
+      .from(data.table) as any)
       .select("*")
-      .order(data.table === "settings" ? "key" : "created_at", { ascending: data.table === "settings" });
+      .order(orderCol, { ascending: data.table === "settings" });
     if (error) throw new Error(error.message);
     return { rows: rows ?? [] };
   });
