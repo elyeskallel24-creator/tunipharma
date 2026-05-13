@@ -121,7 +121,7 @@ export const adminDelete = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await requireAdmin(data.token);
     const col = data.table === "settings" ? "key" : "id";
-    const { error } = await supabaseAdmin.from(data.table as AllowedTable).delete().eq(col, data.id);
+    const { error } = await (supabaseAdmin.from(data.table) as any).delete().eq(col, data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
