@@ -328,7 +328,7 @@ function OrderCard({ order, onStatus }: { order: Record<string, unknown>; onStat
           <li key={i} className="flex justify-between"><span>{it.quantity} × {it.name}</span><span>{formatTND(it.price * it.quantity)}</span></li>
         ))}
       </ul>
-      {order.notes && <div className="mt-3 text-sm text-muted-foreground italic">Note : {order.notes as string}</div>}
+      {!!order.notes && <div className="mt-3 text-sm text-muted-foreground italic">Note : {order.notes as string}</div>}
       <div className="mt-4 flex gap-2 flex-wrap">
         {["pending", "confirmed", "shipped", "delivered", "cancelled"].map((s) => (
           <button key={s} onClick={() => onStatus(s)}
