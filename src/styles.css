@@ -166,8 +166,26 @@
       0 1px 0 rgba(255, 255, 255, 1) inset;
   }
   /* legacy aliases used elsewhere */
-  .glass { @apply glass-2; }
-  .glass-strong { @apply glass-3; }
+  .glass {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(24px) saturate(2) brightness(1.05);
+    -webkit-backdrop-filter: blur(24px) saturate(2) brightness(1.05);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+      0 8px 32px rgba(0, 200, 150, 0.06),
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      0 1px 0 rgba(255, 255, 255, 0.95) inset;
+  }
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(40px) saturate(2.2) brightness(1.06);
+    -webkit-backdrop-filter: blur(40px) saturate(2.2) brightness(1.06);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+      0 16px 64px rgba(0, 200, 150, 0.10),
+      0 4px 16px rgba(0, 0, 0, 0.06),
+      0 1px 0 rgba(255, 255, 255, 1) inset;
+  }
 
   .gradient-text {
     background: var(--gradient-primary);
