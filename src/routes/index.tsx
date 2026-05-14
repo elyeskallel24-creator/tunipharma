@@ -101,9 +101,14 @@ function HomePage() {
               {hero?.subtitle ?? "Médicaments, parapharmacie et cosmétiques livrés chez vous en 24h. Conseils de pharmaciens à votre service."}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link to={(hero?.cta_link as "/" | "/catalogue") ?? "/catalogue"} className="inline-flex h-12 items-center gap-2 rounded-2xl bg-primary px-7 text-sm font-display font-semibold text-primary-foreground hover:bg-primary-glow shadow-elegant transition hover:-translate-y-0.5">
+              <button
+                onClick={() => {
+                  document.getElementById("catalogue-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="inline-flex h-12 items-center gap-2 rounded-2xl bg-primary px-7 text-sm font-display font-semibold text-primary-foreground hover:bg-primary-glow shadow-elegant transition hover:-translate-y-0.5"
+              >
                 {hero?.cta_text ?? "Découvrir le catalogue"} <ArrowRight className="h-4 w-4" />
-              </Link>
+              </button>
               <Link to="/a-propos" className="inline-flex h-12 items-center rounded-2xl glass-2 px-7 text-sm font-display font-semibold hover:bg-primary/8 transition">
                 En savoir plus
               </Link>
@@ -149,7 +154,7 @@ function HomePage() {
 
       {/* FEATURED PRODUCTS - BENTO GRID */}
       {featured && featured.length > 0 && (
-        <section data-animate>
+        <section id="catalogue-section" data-animate style={{ scrollMarginTop: 96 }}>
           <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-primary">Sélection</span>
@@ -223,14 +228,14 @@ function HomePage() {
             </h2>
             <div className="mt-5 text-sm md:text-base text-muted-foreground space-y-3 max-w-prose">
               <p>
-                TuniPharma rassemble une sélection rigoureuse de médicaments et de produits de parapharmacie
-                authentiques, livrés rapidement partout en Tunisie. Notre équipe de pharmaciens vous guide
-                pour choisir les soins adaptés à vos besoins.
+                TuniPharma rassemble une sélection rigoureuse de médicaments et de produits de pharmacie
+                et parapharmacie authentiques, livrés rapidement partout en Tunisie. Notre équipe de
+                pharmaciens vous guide pour choisir les soins adaptés à vos besoins.
               </p>
               <p>
-                Bébés, soins du visage, hygiène, vitamines, dermatologie : explorez un catalogue pensé pour
-                la famille tunisienne. Commande simple, paiement à la livraison, et accompagnement humain à
-                chaque étape.
+                Bébés, soins du visage, hygiène, vitamines, dermatologie... : explorez un catalogue pensé
+                pour la famille tunisienne. Commande simple, paiement à la livraison, et accompagnement
+                humain à chaque étape.
               </p>
             </div>
           </div>
@@ -240,9 +245,23 @@ function HomePage() {
               { n: "24h", l: "livraison" },
               { n: "7j/7", l: "service" },
             ].map((s) => (
-              <div key={s.l} className="glass-2 rounded-2xl p-5 text-center">
-                <div className="font-display font-bold text-3xl text-primary">{s.n}</div>
-                <div className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">{s.l}</div>
+              <div
+                key={s.l}
+                className="glass-2 rounded-2xl p-5 text-center"
+                style={{ overflow: "hidden", position: "relative" }}
+              >
+                <div
+                  className="font-display font-bold text-2xl md:text-3xl text-primary"
+                  style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}
+                >
+                  {s.n}
+                </div>
+                <div
+                  className="text-xs text-muted-foreground mt-1 uppercase tracking-wider"
+                  style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}
+                >
+                  {s.l}
+                </div>
               </div>
             ))}
           </div>

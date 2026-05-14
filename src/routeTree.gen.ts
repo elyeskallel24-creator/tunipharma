@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PanierRouteImport } from './routes/panier'
-import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -22,11 +21,6 @@ import { Route as CategorieSlugRouteImport } from './routes/categorie.$slug'
 const PanierRoute = PanierRouteImport.update({
   id: '/panier',
   path: '/panier',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommandeRoute = CommandeRouteImport.update({
@@ -71,7 +65,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/catalogue': typeof CatalogueRoute
   '/commande': typeof CommandeRoute
-  '/contact': typeof ContactRoute
   '/panier': typeof PanierRoute
   '/categorie/$slug': typeof CategorieSlugRoute
   '/produit/$slug': typeof ProduitSlugRoute
@@ -82,7 +75,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/catalogue': typeof CatalogueRoute
   '/commande': typeof CommandeRoute
-  '/contact': typeof ContactRoute
   '/panier': typeof PanierRoute
   '/categorie/$slug': typeof CategorieSlugRoute
   '/produit/$slug': typeof ProduitSlugRoute
@@ -94,7 +86,6 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/catalogue': typeof CatalogueRoute
   '/commande': typeof CommandeRoute
-  '/contact': typeof ContactRoute
   '/panier': typeof PanierRoute
   '/categorie/$slug': typeof CategorieSlugRoute
   '/produit/$slug': typeof ProduitSlugRoute
@@ -107,7 +98,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/catalogue'
     | '/commande'
-    | '/contact'
     | '/panier'
     | '/categorie/$slug'
     | '/produit/$slug'
@@ -118,7 +108,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/catalogue'
     | '/commande'
-    | '/contact'
     | '/panier'
     | '/categorie/$slug'
     | '/produit/$slug'
@@ -129,7 +118,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/catalogue'
     | '/commande'
-    | '/contact'
     | '/panier'
     | '/categorie/$slug'
     | '/produit/$slug'
@@ -141,7 +129,6 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   CatalogueRoute: typeof CatalogueRoute
   CommandeRoute: typeof CommandeRoute
-  ContactRoute: typeof ContactRoute
   PanierRoute: typeof PanierRoute
   CategorieSlugRoute: typeof CategorieSlugRoute
   ProduitSlugRoute: typeof ProduitSlugRoute
@@ -154,13 +141,6 @@ declare module '@tanstack/react-router' {
       path: '/panier'
       fullPath: '/panier'
       preLoaderRoute: typeof PanierRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/commande': {
@@ -221,7 +201,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   CatalogueRoute: CatalogueRoute,
   CommandeRoute: CommandeRoute,
-  ContactRoute: ContactRoute,
   PanierRoute: PanierRoute,
   CategorieSlugRoute: CategorieSlugRoute,
   ProduitSlugRoute: ProduitSlugRoute,
