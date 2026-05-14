@@ -13,6 +13,8 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { AmbientBackground } from "@/components/site/AmbientBackground";
+import { CustomCursor } from "@/components/site/CustomCursor";
 
 function NotFoundComponent() {
   return (
@@ -60,15 +62,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "TuniPharma — Pharmacie & Parapharmacie en ligne en Tunisie" },
+      { title: "TuniPharma , Pharmacie & Parapharmacie en ligne en Tunisie" },
       { name: "description", content: "Commandez vos médicaments et produits de parapharmacie en ligne avec livraison partout en Tunisie. TuniPharma, votre pharmacie de confiance." },
       { name: "theme-color", content: "#1ea487" },
-      { property: "og:title", content: "TuniPharma — Pharmacie & Parapharmacie en ligne en Tunisie" },
+      { property: "og:title", content: "TuniPharma , Pharmacie & Parapharmacie en ligne en Tunisie" },
       { property: "og:description", content: "Commandez vos médicaments et produits de parapharmacie en ligne avec livraison partout en Tunisie. TuniPharma, votre pharmacie de confiance." },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "fr_FR" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "TuniPharma — Pharmacie & Parapharmacie en ligne en Tunisie" },
+      { name: "twitter:title", content: "TuniPharma , Pharmacie & Parapharmacie en ligne en Tunisie" },
       { name: "twitter:description", content: "Commandez vos médicaments et produits de parapharmacie en ligne avec livraison partout en Tunisie. TuniPharma, votre pharmacie de confiance." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4d917224-e177-4835-80d5-636cf491de3a/id-preview-e518e02e--d9536e92-10e3-4612-873e-fec9bd99b363.lovable.app-1778633872110.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4d917224-e177-4835-80d5-636cf491de3a/id-preview-e518e02e--d9536e92-10e3-4612-873e-fec9bd99b363.lovable.app-1778633872110.png" },
@@ -78,7 +80,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -106,6 +108,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {!isAdmin && <AmbientBackground />}
       <div className="min-h-screen flex flex-col">
         {!isAdmin && <Header />}
         <main className="flex-1">
@@ -113,6 +116,7 @@ function RootComponent() {
         </main>
         {!isAdmin && <Footer />}
       </div>
+      {!isAdmin && <CustomCursor />}
       <Toaster position="top-center" richColors closeButton />
     </QueryClientProvider>
   );

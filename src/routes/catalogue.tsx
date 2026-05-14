@@ -8,7 +8,7 @@ import { Search } from "lucide-react";
 export const Route = createFileRoute("/catalogue")({
   head: () => ({
     meta: [
-      { title: "Catalogue — TuniPharma" },
+      { title: "Catalogue , TuniPharma" },
       { name: "description", content: "Découvrez tout notre catalogue de médicaments et produits de parapharmacie." },
     ],
   }),
