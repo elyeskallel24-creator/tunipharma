@@ -8,15 +8,28 @@ import { formatTND } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/commande")({
-  head: () => ({ meta: [{ title: "Commande — TuniPharma" }] }),
+  head: () => ({ meta: [{ title: "Commande, TuniPharma" }] }),
   component: CheckoutPage,
 });
+
+function Field({ id, label, value, onChange, type = "text", required, textarea }: { id: string; label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; textarea?: boolean }) {
+  return (
+    <div className="field">
+      {textarea ? (
+        <textarea id={id} value={value} placeholder=" " required={required} onChange={(e) => onChange(e.target.value)} />
+      ) : (
+        <input id={id} type={type} value={value} placeholder=" " required={required} onChange={(e) => onChange(e.target.value)} />
+      )}
+      <label htmlFor={id}>{label}{required && " *"}</label>
+    </div>
+  );
+}
 
 function CheckoutPage() {
   const navigate = useNavigate();
   const { items, subtotal, clear } = useCart();
   const [submitting, setSubmitting] = useState(false);
-  const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
   const [form, setForm] = useState({
     customer_name: "", customer_phone: "", customer_email: "",
     address: "", city: "", postal_code: "", notes: "",
@@ -34,19 +47,24 @@ function CheckoutPage() {
   const fee = settings?.delivery_fee ?? 7;
   const total = sub + fee;
 
-  if (orderNumber) {
+  if (done) {
     return (
       <div className="container-page py-20">
-        <div className="glass-strong rounded-3xl p-12 text-center max-w-lg mx-auto">
-          <div className="h-16 w-16 rounded-full bg-success/20 mx-auto flex items-center justify-center">
-            <Check className="h-8 w-8 text-success" />
-          </div>
-          <h1 className="text-2xl font-bold mt-4">Commande confirmée !</h1>
-          <p className="text-muted-foreground mt-2">
-            Numéro de commande : <span className="font-mono font-bold text-foreground">{orderNumber}</span>
+        <div className="glass-3 rounded-[32px] p-12 text-center max-w-xl mx-auto" style={{ animation: "floatIn 0.5s cubic-bezier(0.23, 1, 0.32, 1)" }}>
+          <svg className="mx-auto" width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="var(--primary)" strokeWidth="3"
+              strokeDasharray="226" strokeDashoffset="226"
+              style={{ animation: "draw 0.7s 0.1s ease-out forwards" }} />
+            <path d="M24 42 L36 54 L58 30" fill="none" stroke="var(--primary)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
+              strokeDasharray="60" strokeDashoffset="60"
+              style={{ animation: "draw 0.4s 0.7s ease-out forwards" }} />
+          </svg>
+          <style>{`@keyframes draw { to { stroke-dashoffset: 0; } }`}</style>
+          <h1 className="font-display text-2xl md:text-3xl font-bold mt-6">Commande reçue</h1>
+          <p className="mt-4 text-base md:text-lg text-foreground leading-relaxed">
+            Merci, nous vous contacterons bientôt pour confirmer votre achat et vous le faire parvenir en toute sécurité.
           </p>
-          <p className="text-sm text-muted-foreground mt-4">Notre équipe vous contactera très rapidement pour confirmer la livraison.</p>
-          <Link to="/" className="mt-6 inline-flex h-12 items-center rounded-full bg-primary px-6 font-semibold text-primary-foreground hover:bg-primary-glow">
+          <Link to="/" className="mt-8 inline-flex h-12 items-center rounded-2xl bg-primary px-7 font-display font-semibold text-primary-foreground hover:bg-primary-glow transition">
             Retour à l'accueil
           </Link>
         </div>
@@ -63,18 +81,16 @@ function CheckoutPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const { data, error } = await supabase.from("orders").insert({
+      const { error } = await supabase.from("orders").insert({
         order_number: "",
         ...form,
-        items: items.map((i) => ({
-          id: i.id, slug: i.slug, name: i.name, price: i.price, quantity: i.quantity,
-        })),
+        items: items.map((i) => ({ id: i.id, slug: i.slug, name: i.name, price: i.price, quantity: i.quantity })),
         subtotal: sub,
         delivery_fee: fee,
         total,
       }).select("order_number").single();
       if (error) throw error;
-      setOrderNumber(data.order_number);
+      setDone(true);
       clear();
     } catch (err) {
       toast.error("Erreur", { description: (err as Error).message });
@@ -83,28 +99,26 @@ function CheckoutPage() {
     }
   };
 
-  const inputCls = "w-full h-12 px-4 rounded-xl bg-secondary/60 border border-border focus:outline-none focus:ring-2 focus:ring-primary/40";
-
   return (
     <div className="container-page py-8 md:py-12">
-      <h1 className="text-4xl font-bold mb-8">Finaliser la commande</h1>
+      <h1 className="font-display text-4xl md:text-5xl font-bold mb-8">Finaliser la commande</h1>
       <form onSubmit={onSubmit} className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 glass-strong rounded-3xl p-6 space-y-4">
-          <h2 className="font-bold text-lg">Informations de livraison</h2>
+        <div className="lg:col-span-2 glass-3 rounded-[28px] p-7 space-y-4">
+          <h2 className="font-display font-bold text-lg">Informations de livraison</h2>
           <div className="grid md:grid-cols-2 gap-3">
-            <input required placeholder="Nom complet *" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} className={inputCls} />
-            <input required type="tel" placeholder="Téléphone *" value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} className={inputCls} />
-            <input type="email" placeholder="Email" value={form.customer_email} onChange={(e) => setForm({ ...form, customer_email: e.target.value })} className={`${inputCls} md:col-span-2`} />
-            <input required placeholder="Adresse *" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={`${inputCls} md:col-span-2`} />
-            <input required placeholder="Ville *" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
-            <input placeholder="Code postal" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} className={inputCls} />
-            <textarea placeholder="Notes (optionnel)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className={`${inputCls} md:col-span-2 h-24 py-3`} />
+            <Field id="cn" label="Nom complet" required value={form.customer_name} onChange={(v) => setForm({ ...form, customer_name: v })} />
+            <Field id="cp" label="Téléphone" type="tel" required value={form.customer_phone} onChange={(v) => setForm({ ...form, customer_phone: v })} />
+            <div className="md:col-span-2"><Field id="ce" label="Email (optionnel)" type="email" value={form.customer_email} onChange={(v) => setForm({ ...form, customer_email: v })} /></div>
+            <div className="md:col-span-2"><Field id="ad" label="Adresse" required value={form.address} onChange={(v) => setForm({ ...form, address: v })} /></div>
+            <Field id="ci" label="Ville" required value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
+            <Field id="po" label="Code postal" value={form.postal_code} onChange={(v) => setForm({ ...form, postal_code: v })} />
+            <div className="md:col-span-2"><Field id="no" label="Notes (optionnel)" textarea value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} /></div>
           </div>
         </div>
 
-        <aside className="glass-strong rounded-3xl p-6 h-fit space-y-3">
-          <h2 className="font-bold text-lg">Votre commande</h2>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+        <aside className="glass-3 rounded-[28px] p-7 h-fit space-y-4">
+          <h2 className="font-display font-bold text-lg">Votre commande</h2>
+          <div className="space-y-2 max-h-64 overflow-y-auto nice-scroll">
             {items.map((it) => (
               <div key={it.id} className="flex justify-between text-sm">
                 <span className="truncate pr-2">{it.quantity} × {it.name}</span>
@@ -112,14 +126,14 @@ function CheckoutPage() {
               </div>
             ))}
           </div>
-          <div className="border-t border-border pt-3 space-y-2 text-sm">
+          <div className="border-t border-primary/15 pt-3 space-y-2 text-sm">
             <div className="flex justify-between"><span className="text-muted-foreground">Sous-total</span><span>{formatTND(sub)}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Livraison</span><span>{formatTND(fee)}</span></div>
-            <div className="flex justify-between font-bold text-lg pt-2 border-t border-border"><span>Total</span><span className="gradient-text">{formatTND(total)}</span></div>
+            <div className="flex justify-between font-display font-bold text-lg pt-2 border-t border-primary/15"><span>Total</span><span className="gradient-text">{formatTND(total)}</span></div>
           </div>
           <p className="text-xs text-muted-foreground">💵 Paiement à la livraison.</p>
-          <button disabled={submitting} type="submit" className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary-glow shadow-elegant transition disabled:opacity-50">
-            {submitting ? "Envoi…" : "Confirmer la commande"}
+          <button disabled={submitting} type="submit" className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-display font-semibold text-base hover:bg-primary-glow shadow-elegant transition disabled:opacity-50">
+            {submitting ? "Envoi..." : "Confirmer la commande"}
           </button>
         </aside>
       </form>
