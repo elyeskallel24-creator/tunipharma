@@ -13,6 +13,8 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { AmbientBackground } from "@/components/site/AmbientBackground";
+import { CustomCursor } from "@/components/site/CustomCursor";
 
 function NotFoundComponent() {
   return (
@@ -106,6 +108,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {!isAdmin && <AmbientBackground />}
       <div className="min-h-screen flex flex-col">
         {!isAdmin && <Header />}
         <main className="flex-1">
@@ -113,6 +116,7 @@ function RootComponent() {
         </main>
         {!isAdmin && <Footer />}
       </div>
+      {!isAdmin && <CustomCursor />}
       <Toaster position="top-center" richColors closeButton />
     </QueryClientProvider>
   );
