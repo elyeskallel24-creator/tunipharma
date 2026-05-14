@@ -15,6 +15,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AmbientBackground } from "@/components/site/AmbientBackground";
 import { CustomCursor } from "@/components/site/CustomCursor";
+import { SplashScreen } from "@/components/site/SplashScreen";
 
 function NotFoundComponent() {
   return (
