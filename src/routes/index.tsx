@@ -228,14 +228,14 @@ function HomePage() {
             </h2>
             <div className="mt-5 text-sm md:text-base text-muted-foreground space-y-3 max-w-prose">
               <p>
-                TuniPharma rassemble une sélection rigoureuse de médicaments et de produits de parapharmacie
-                authentiques, livrés rapidement partout en Tunisie. Notre équipe de pharmaciens vous guide
-                pour choisir les soins adaptés à vos besoins.
+                TuniPharma rassemble une sélection rigoureuse de médicaments et de produits de pharmacie
+                et parapharmacie authentiques, livrés rapidement partout en Tunisie. Notre équipe de
+                pharmaciens vous guide pour choisir les soins adaptés à vos besoins.
               </p>
               <p>
-                Bébés, soins du visage, hygiène, vitamines, dermatologie : explorez un catalogue pensé pour
-                la famille tunisienne. Commande simple, paiement à la livraison, et accompagnement humain à
-                chaque étape.
+                Bébés, soins du visage, hygiène, vitamines, dermatologie... : explorez un catalogue pensé
+                pour la famille tunisienne. Commande simple, paiement à la livraison, et accompagnement
+                humain à chaque étape.
               </p>
             </div>
           </div>
@@ -245,9 +245,23 @@ function HomePage() {
               { n: "24h", l: "livraison" },
               { n: "7j/7", l: "service" },
             ].map((s) => (
-              <div key={s.l} className="glass-2 rounded-2xl p-5 text-center">
-                <div className="font-display font-bold text-3xl text-primary">{s.n}</div>
-                <div className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">{s.l}</div>
+              <div
+                key={s.l}
+                className="glass-2 rounded-2xl p-5 text-center"
+                style={{ overflow: "hidden", position: "relative" }}
+              >
+                <div
+                  className="font-display font-bold text-2xl md:text-3xl text-primary"
+                  style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}
+                >
+                  {s.n}
+                </div>
+                <div
+                  className="text-xs text-muted-foreground mt-1 uppercase tracking-wider"
+                  style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}
+                >
+                  {s.l}
+                </div>
               </div>
             ))}
           </div>
