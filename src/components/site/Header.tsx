@@ -8,12 +8,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { SearchModal } from "./SearchModal";
 import { CartDrawer } from "./CartDrawer";
 
-const NAV = [
+type NavItem = { to: "/" | "/catalogue" | "/a-propos" | "/contact"; label: string; mega?: boolean };
+const NAV: readonly NavItem[] = [
   { to: "/", label: "Accueil" },
   { to: "/catalogue", label: "Catalogue", mega: true },
   { to: "/a-propos", label: "À propos" },
   { to: "/contact", label: "Contact" },
-] as const;
+];
 
 const CAT_ICONS = [Pill, Leaf, Droplets, Baby, Sparkles];
 
