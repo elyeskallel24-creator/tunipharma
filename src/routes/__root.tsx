@@ -109,6 +109,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {!isAdmin && <SplashScreen />}
       {!isAdmin && <AmbientBackground />}
       <div className="min-h-screen flex flex-col">
         {!isAdmin && <Header />}
