@@ -154,7 +154,7 @@ function HomePage() {
 
       {/* FEATURED PRODUCTS - BENTO GRID */}
       {featured && featured.length > 0 && (
-        <section data-animate>
+        <section id="catalogue-section" data-animate style={{ scrollMarginTop: 96 }}>
           <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-primary">Sélection</span>
