@@ -172,7 +172,6 @@ export function Header() {
                             <Link
                               to="/categorie/$slug"
                               params={{ slug: c.slug }}
-                              search={{ type: t.slug }}
                               className="text-xs text-muted-foreground hover:text-primary transition"
                             >
                               {t.name}
