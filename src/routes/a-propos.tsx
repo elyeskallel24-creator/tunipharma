@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/a-propos")({
   head: () => ({
     meta: [
-      { title: "À propos — TuniPharma" },
+      { title: "À propos , TuniPharma" },
       { name: "description", content: "Découvrez TuniPharma, votre pharmacie en ligne tunisienne. Notre mission, vision et valeurs." },
     ],
   }),

@@ -4,7 +4,7 @@ import { Phone, Mail, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({ meta: [{ title: "Contact — TuniPharma" }] }),
+  head: () => ({ meta: [{ title: "Contact , TuniPharma" }] }),
   component: ContactPage,
 });
 

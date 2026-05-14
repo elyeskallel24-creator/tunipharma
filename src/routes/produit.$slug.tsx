@@ -73,7 +73,7 @@ function ProductPage() {
 
           {product.requires_prescription && (
             <div className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-warning/15 text-warning-foreground border border-warning/30 text-sm">
-              <FileText className="h-4 w-4" /> Ordonnance requise — à présenter à la livraison.
+              <FileText className="h-4 w-4" /> Ordonnance requise , à présenter à la livraison.
             </div>
           )}
 

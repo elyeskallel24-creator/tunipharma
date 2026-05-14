@@ -4,7 +4,7 @@ import { useCart } from "@/lib/cart-store";
 import { formatTND } from "@/lib/format";
 
 export const Route = createFileRoute("/panier")({
-  head: () => ({ meta: [{ title: "Panier — TuniPharma" }] }),
+  head: () => ({ meta: [{ title: "Panier , TuniPharma" }] }),
   component: CartPage,
 });
 
