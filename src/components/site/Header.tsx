@@ -114,14 +114,14 @@ export function Header() {
               className="h-10 w-10 inline-flex items-center justify-center rounded-full glass-1 hover:bg-primary/10 transition"
               aria-label="Rechercher"
             >
-              <Search className="h-4.5 w-4.5" />
+              <Search className="h-[18px] w-[18px]" />
             </button>
             <button
               onClick={() => setCartOpen(true)}
               className="relative h-10 w-10 inline-flex items-center justify-center rounded-full bg-primary/12 hover:bg-primary/18 transition"
               aria-label="Panier"
             >
-              <ShoppingBag className="h-4.5 w-4.5 text-primary" />
+              <ShoppingBag className="h-[18px] w-[18px] text-primary" />
               {count > 0 && (
                 <span
                   key={bumpKey}
@@ -162,7 +162,7 @@ export function Header() {
                         className="flex items-center gap-2.5 mb-2 group"
                       >
                         <span className="h-9 w-9 rounded-xl bg-primary/10 inline-flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition">
-                          <Icon className="h-4.5 w-4.5" />
+                          <Icon className="h-[18px] w-[18px]" />
                         </span>
                         <span className="font-display font-semibold text-sm group-hover:text-primary transition">{c.name}</span>
                       </Link>
