@@ -101,9 +101,14 @@ function HomePage() {
               {hero?.subtitle ?? "Médicaments, parapharmacie et cosmétiques livrés chez vous en 24h. Conseils de pharmaciens à votre service."}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link to={(hero?.cta_link as "/" | "/catalogue") ?? "/catalogue"} className="inline-flex h-12 items-center gap-2 rounded-2xl bg-primary px-7 text-sm font-display font-semibold text-primary-foreground hover:bg-primary-glow shadow-elegant transition hover:-translate-y-0.5">
+              <button
+                onClick={() => {
+                  document.getElementById("catalogue-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="inline-flex h-12 items-center gap-2 rounded-2xl bg-primary px-7 text-sm font-display font-semibold text-primary-foreground hover:bg-primary-glow shadow-elegant transition hover:-translate-y-0.5"
+              >
                 {hero?.cta_text ?? "Découvrir le catalogue"} <ArrowRight className="h-4 w-4" />
-              </Link>
+              </button>
               <Link to="/a-propos" className="inline-flex h-12 items-center rounded-2xl glass-2 px-7 text-sm font-display font-semibold hover:bg-primary/8 transition">
                 En savoir plus
               </Link>
