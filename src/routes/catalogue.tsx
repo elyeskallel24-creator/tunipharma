@@ -53,8 +53,54 @@ function CataloguePage() {
   const hero = list[idx];
 
   return (
-    <div className="container-page py-8 md:py-12">
-      <header className="mb-8">
+    <div className="container-page py-8 md:py-12 space-y-8">
+      {list.length > 0 && (
+        <section className="relative">
+          <div className="relative overflow-hidden rounded-[32px] glass-3 min-h-[260px] md:min-h-[340px] flex items-end">
+            {hero?.image_url && (
+              <img
+                key={hero.id}
+                src={hero.image_url}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ animation: "slideInRight 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)" }}
+              />
+            )}
+            {(hero?.title || hero?.subtitle) && (
+              <div
+                className="relative w-full p-6 md:p-10"
+                style={{ background: "linear-gradient(0deg, rgba(255,255,255,0.92) 30%, rgba(255,255,255,0.35) 70%, transparent 100%)" }}
+              >
+                {hero?.title && (
+                  <h2 className="font-display text-2xl md:text-4xl font-bold leading-tight max-w-2xl">{hero.title}</h2>
+                )}
+                {hero?.subtitle && (
+                  <p className="mt-2 text-sm md:text-base text-muted-foreground max-w-xl">{hero.subtitle}</p>
+                )}
+              </div>
+            )}
+          </div>
+          {list.length > 1 && (
+            <div className="mt-4 flex justify-center gap-2">
+              {list.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setIdx(i)}
+                  className="rounded-full transition-all"
+                  style={{
+                    width: i === idx ? 64 : 32,
+                    height: 4,
+                    background: i === idx ? "var(--primary)" : "rgba(0,200,150,0.2)",
+                  }}
+                  aria-label={`Slide ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      <header>
         <h1 className="text-4xl font-bold">Catalogue</h1>
         <p className="text-muted-foreground mt-2">Tous nos produits, en un coup d'œil.</p>
       </header>
