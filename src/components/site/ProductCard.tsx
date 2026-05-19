@@ -148,9 +148,9 @@ export function ProductCard({ p, large = false }: { p: ProductCardData; large?: 
           </div>
           <button
             onClick={onAdd}
-            className="flex-1 h-10 px-3 rounded-2xl bg-primary text-primary-foreground font-display font-semibold text-sm hover:bg-primary-glow transition shadow-md hover:-translate-y-0.5"
+            className="flex-1 h-10 px-2 rounded-2xl bg-primary text-primary-foreground font-display font-semibold text-xs sm:text-sm hover:bg-primary-glow transition shadow-md hover:-translate-y-0.5 truncate min-w-0"
           >
-            <span className="hidden sm:inline">Ajouter, </span>{formatTND(final * qty)}
+            <span className="hidden sm:inline">Ajouter, </span><span className="whitespace-nowrap">{formatTND(final * qty)}</span>
           </button>
         </div>
         {onSale && (
