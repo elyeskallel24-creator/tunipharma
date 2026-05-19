@@ -118,8 +118,9 @@ export type Database = {
       }
       orders: {
         Row: {
-          address: string
-          city: string
+          address: string | null
+          city: string | null
+          contact_method: string | null
           created_at: string
           customer_email: string | null
           customer_name: string
@@ -128,16 +129,18 @@ export type Database = {
           id: string
           items: Json
           notes: string | null
-          order_number: string
+          order_number: string | null
           postal_code: string | null
           status: string
           subtotal: number
           total: number
           updated_at: string
+          wilaya: string | null
         }
         Insert: {
-          address: string
-          city: string
+          address?: string | null
+          city?: string | null
+          contact_method?: string | null
           created_at?: string
           customer_email?: string | null
           customer_name: string
@@ -146,16 +149,18 @@ export type Database = {
           id?: string
           items?: Json
           notes?: string | null
-          order_number: string
+          order_number?: string | null
           postal_code?: string | null
           status?: string
           subtotal?: number
           total?: number
           updated_at?: string
+          wilaya?: string | null
         }
         Update: {
-          address?: string
-          city?: string
+          address?: string | null
+          city?: string | null
+          contact_method?: string | null
           created_at?: string
           customer_email?: string | null
           customer_name?: string
@@ -164,12 +169,58 @@ export type Database = {
           id?: string
           items?: Json
           notes?: string | null
-          order_number?: string
+          order_number?: string | null
           postal_code?: string | null
           status?: string
           subtotal?: number
           total?: number
           updated_at?: string
+          wilaya?: string | null
+        }
+        Relationships: []
+      }
+      prescription_orders: {
+        Row: {
+          address: string
+          contact_method: string
+          created_at: string
+          customer_name: string
+          customer_phone: string
+          id: string
+          notes: string | null
+          order_number: string | null
+          prescription_images: Json
+          status: string
+          updated_at: string
+          wilaya: string
+        }
+        Insert: {
+          address: string
+          contact_method: string
+          created_at?: string
+          customer_name: string
+          customer_phone: string
+          id?: string
+          notes?: string | null
+          order_number?: string | null
+          prescription_images?: Json
+          status?: string
+          updated_at?: string
+          wilaya: string
+        }
+        Update: {
+          address?: string
+          contact_method?: string
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          notes?: string | null
+          order_number?: string | null
+          prescription_images?: Json
+          status?: string
+          updated_at?: string
+          wilaya?: string
         }
         Relationships: []
       }
