@@ -288,6 +288,7 @@ function HomePage() {
           </div>
         </div>
       </section>
+      <PrescriptionDialog open={rxOpen} onClose={() => setRxOpen(false)} />
     </div>
   );
 }
