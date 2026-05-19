@@ -23,6 +23,7 @@ const TABS = [
   { key: "product_types", label: "Types" },
   { key: "slider_images", label: "Slider" },
   { key: "orders", label: "Commandes" },
+  { key: "prescription_orders", label: "Commandes avec ordonnance" },
   { key: "about_content", label: "À propos" },
   { key: "settings", label: "Paramètres" },
 ] as const;
@@ -123,9 +124,9 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
 }
 
 // ============== TAB CONTENT ==============
-type Field = { name: string; label: string; type: "text" | "textarea" | "number" | "boolean" | "image" | "select" | "json"; options?: { value: string; label: string }[]; required?: boolean };
+type Field = { name: string; label: string; type: "text" | "textarea" | "number" | "boolean" | "image" | "gallery" | "select" | "json" | "availability"; options?: { value: string; label: string }[]; required?: boolean };
 
-const FIELDS: Record<Exclude<TabKey, "orders">, Field[]> = {
+const FIELDS: Record<Exclude<TabKey, "orders" | "prescription_orders">, Field[]> = {
   products: [
     { name: "name", label: "Nom", type: "text", required: true },
     { name: "slug", label: "Slug (URL)", type: "text", required: true },
@@ -139,6 +140,7 @@ const FIELDS: Record<Exclude<TabKey, "orders">, Field[]> = {
     { name: "stock", label: "Stock", type: "number" },
     { name: "sku", label: "SKU", type: "text" },
     { name: "image_url", label: "Image principale", type: "image" },
+    { name: "gallery", label: "Galerie (max 6 photos)", type: "gallery" },
     { name: "requires_prescription", label: "Sur ordonnance", type: "boolean" },
     { name: "is_active", label: "Actif", type: "boolean" },
     { name: "is_featured", label: "Mis en avant", type: "boolean" },
@@ -149,7 +151,7 @@ const FIELDS: Record<Exclude<TabKey, "orders">, Field[]> = {
     { name: "description", label: "Description", type: "textarea" },
     { name: "image_url", label: "Image", type: "image" },
     { name: "position", label: "Position", type: "number" },
-    { name: "is_active", label: "Actif", type: "boolean" },
+    { name: "is_active", label: "Disponibilité", type: "availability" },
   ],
   product_types: [
     { name: "category_id", label: "Catégorie", type: "select", required: true },
