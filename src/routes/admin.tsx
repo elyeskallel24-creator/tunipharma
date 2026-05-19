@@ -23,6 +23,7 @@ const TABS = [
   { key: "product_types", label: "Types" },
   { key: "slider_images", label: "Slider" },
   { key: "orders", label: "Commandes" },
+  { key: "prescription_orders", label: "Commandes avec ordonnance" },
   { key: "about_content", label: "À propos" },
   { key: "settings", label: "Paramètres" },
 ] as const;
@@ -123,9 +124,9 @@ function Dashboard({ token, onLogout }: { token: string; onLogout: () => void })
 }
 
 // ============== TAB CONTENT ==============
-type Field = { name: string; label: string; type: "text" | "textarea" | "number" | "boolean" | "image" | "select" | "json"; options?: { value: string; label: string }[]; required?: boolean };
+type Field = { name: string; label: string; type: "text" | "textarea" | "number" | "boolean" | "image" | "gallery" | "select" | "json" | "availability"; options?: { value: string; label: string }[]; required?: boolean };
 
-const FIELDS: Record<Exclude<TabKey, "orders">, Field[]> = {
+const FIELDS: Record<Exclude<TabKey, "orders" | "prescription_orders">, Field[]> = {
   products: [
     { name: "name", label: "Nom", type: "text", required: true },
     { name: "slug", label: "Slug (URL)", type: "text", required: true },
@@ -139,6 +140,7 @@ const FIELDS: Record<Exclude<TabKey, "orders">, Field[]> = {
     { name: "stock", label: "Stock", type: "number" },
     { name: "sku", label: "SKU", type: "text" },
     { name: "image_url", label: "Image principale", type: "image" },
+    { name: "gallery", label: "Galerie (max 6 photos)", type: "gallery" },
     { name: "requires_prescription", label: "Sur ordonnance", type: "boolean" },
     { name: "is_active", label: "Actif", type: "boolean" },
     { name: "is_featured", label: "Mis en avant", type: "boolean" },
@@ -149,7 +151,7 @@ const FIELDS: Record<Exclude<TabKey, "orders">, Field[]> = {
     { name: "description", label: "Description", type: "textarea" },
     { name: "image_url", label: "Image", type: "image" },
     { name: "position", label: "Position", type: "number" },
-    { name: "is_active", label: "Actif", type: "boolean" },
+    { name: "is_active", label: "Disponibilité", type: "availability" },
   ],
   product_types: [
     { name: "category_id", label: "Catégorie", type: "select", required: true },
@@ -217,12 +219,15 @@ function TabContent({ token, tab }: { token: string; tab: TabKey }) {
     onError: (e) => toast.error("Erreur", { description: (e as Error).message }),
   });
 
-  if (tab === "orders") {
+  if (tab === "orders" || tab === "prescription_orders") {
+    const isRx = tab === "prescription_orders";
     return (
       <div className="space-y-3">
-        <h2 className="text-2xl font-bold mb-4">Commandes</h2>
+        <h2 className="text-2xl font-bold mb-4">{isRx ? "Commandes avec ordonnance" : "Commandes"}</h2>
         {isLoading ? <div>Chargement…</div> : (data ?? []).length === 0 ? (
           <div className="glass rounded-2xl p-8 text-center text-muted-foreground">Aucune commande pour l'instant.</div>
+        ) : isRx ? (
+          (data as Array<Record<string, unknown>>).map((o) => <PrescriptionOrderCard key={o.id as string} order={o} onStatus={(s) => orderStatusFn({ data: { token, id: o.id as string, status: s, table: "prescription_orders" } }).then(() => qc.invalidateQueries({ queryKey: ["admin-list", "prescription_orders"] }))} />)
         ) : (
           (data as Array<Record<string, unknown>>).map((o) => <OrderCard key={o.id as string} order={o} onStatus={(s) => orderStatusFn({ data: { token, id: o.id as string, status: s } }).then(() => qc.invalidateQueries({ queryKey: ["admin-list", "orders"] }))} />)
         )}
@@ -230,7 +235,7 @@ function TabContent({ token, tab }: { token: string; tab: TabKey }) {
     );
   }
 
-  const fields = FIELDS[tab];
+  const fields = FIELDS[tab as keyof typeof FIELDS];
   const idCol = tab === "settings" ? "key" : "id";
 
   return (
@@ -279,7 +284,7 @@ function TabContent({ token, tab }: { token: string; tab: TabKey }) {
           row={editing}
           categories={categories as Array<{ id: string; name: string }> | undefined}
           types={types as Array<{ id: string; name: string; category_id: string }> | undefined}
-          tab={tab}
+          tab={tab as Exclude<TabKey, "orders" | "prescription_orders">}
           onClose={() => setEditing(null)}
           onSave={(r) => upsertM.mutate(r)}
           saving={upsertM.isPending}
@@ -341,13 +346,53 @@ function OrderCard({ order, onStatus }: { order: Record<string, unknown>; onStat
   );
 }
 
+function PrescriptionOrderCard({ order, onStatus }: { order: Record<string, unknown>; onStatus: (s: string) => void }) {
+  const imgs = (order.prescription_images as string[]) ?? [];
+  const status = order.status as string;
+  return (
+    <div className="glass-strong rounded-2xl p-5">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <span className="font-mono font-bold">{order.order_number as string}</span>
+          <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/20 text-primary">{status}</span>
+          <div className="text-sm text-muted-foreground mt-1">{new Date(order.created_at as string).toLocaleString("fr-FR")}</div>
+        </div>
+      </div>
+      <div className="mt-3 grid md:grid-cols-2 gap-3 text-sm">
+        <div>
+          <div className="font-semibold">{order.customer_name as string}</div>
+          <div className="text-muted-foreground">{order.customer_phone as string} • {order.contact_method as string}</div>
+        </div>
+        <div className="text-muted-foreground">{order.wilaya as string} — {order.address as string}</div>
+      </div>
+      {imgs.length > 0 && (
+        <div className="mt-3 grid grid-cols-3 md:grid-cols-6 gap-2">
+          {imgs.map((u, i) => (
+            <a key={i} href={u} target="_blank" rel="noreferrer" className="aspect-square rounded-lg overflow-hidden border border-border">
+              <img src={u} alt="" className="w-full h-full object-cover" />
+            </a>
+          ))}
+        </div>
+      )}
+      <div className="mt-4 flex gap-2 flex-wrap">
+        {["pending", "confirmed", "shipped", "delivered", "cancelled"].map((s) => (
+          <button key={s} onClick={() => onStatus(s)}
+            className={`px-3 h-8 rounded-full text-xs font-medium transition ${s === status ? "bg-primary text-primary-foreground" : "glass hover:bg-secondary"}`}>
+            {s}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function EditModal(props: {
   token: string;
   fields: Field[];
   row: Record<string, unknown>;
   categories?: Array<{ id: string; name: string }>;
   types?: Array<{ id: string; name: string; category_id: string }>;
-  tab: TabKey;
+  tab: Exclude<TabKey, "orders" | "prescription_orders">;
   onClose: () => void;
   onSave: (row: Record<string, unknown>) => void;
   saving: boolean;
@@ -444,6 +489,66 @@ function EditModal(props: {
                       catch { setForm({ ...form, [f.name]: e.target.value }); }
                     }}
                     className="w-full p-3 rounded-xl bg-secondary/60 border border-border min-h-[160px] font-mono text-xs" />
+                </div>
+              );
+            }
+            if (f.type === "availability") {
+              const v = val as boolean | undefined;
+              return (
+                <div key={f.name} className="space-y-2">
+                  <label className="text-sm font-medium block">{f.label}</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {([{ k: true, l: "Disponible" }, { k: false, l: "N'est pas disponible" }] as const).map((o) => (
+                      <label key={String(o.k)} className={`flex items-center gap-3 h-12 px-4 rounded-xl border cursor-pointer transition ${v === o.k ? "border-primary bg-primary/5" : "border-border bg-secondary/40"}`}>
+                        <input type="radio" name={f.name} checked={v === o.k}
+                          onChange={() => setForm({ ...form, [f.name]: o.k })}
+                          className="h-4 w-4 accent-[color:var(--primary)]" />
+                        <span className="text-sm font-medium">{o.l}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+            if (f.type === "gallery") {
+              const list = Array.isArray(val) ? (val as string[]) : [];
+              const handleGallery = async (files: FileList | null) => {
+                if (!files) return;
+                const remaining = 6 - list.length;
+                for (const file of Array.from(files).slice(0, remaining)) {
+                  const buf = await file.arrayBuffer();
+                  let binary = ""; const bytes = new Uint8Array(buf);
+                  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+                  const base64 = btoa(binary);
+                  try {
+                    const r = await uploadFn({ data: { token, filename: file.name, contentType: file.type, base64, folder: tab } });
+                    setForm((f0) => {
+                      const cur = Array.isArray(f0.gallery) ? (f0.gallery as string[]) : [];
+                      return { ...f0, gallery: [...cur, r.url].slice(0, 6) };
+                    });
+                  } catch (e) { toast.error("Upload échoué", { description: (e as Error).message }); }
+                }
+              };
+              return (
+                <div key={f.name}>
+                  <label className="text-sm font-medium block mb-2">{f.label}</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {list.map((u, i) => (
+                      <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-border">
+                        <img src={u} alt="" className="w-full h-full object-cover" />
+                        <button type="button" onClick={() => setForm({ ...form, gallery: list.filter((_, j) => j !== i) })}
+                          className="absolute top-1 right-1 h-6 w-6 rounded-full bg-destructive text-white inline-flex items-center justify-center">
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    {list.length < 6 && (
+                      <label className="aspect-square rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-secondary/40">
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                        <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleGallery(e.target.files)} />
+                      </label>
+                    )}
+                  </div>
                 </div>
               );
             }

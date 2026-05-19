@@ -74,15 +74,17 @@ export const adminListOrders = createServerFn({ method: "POST" })
   });
 
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
-  .inputValidator((d: { token: string; id: string; status: string }) =>
+  .inputValidator((d: { token: string; id: string; status: string; table?: string }) =>
     z.object({
       token: z.string(),
       id: z.string().uuid(),
       status: z.enum(["pending", "confirmed", "shipped", "delivered", "cancelled"]),
+      table: z.enum(["orders", "prescription_orders"]).optional(),
     }).parse(d))
   .handler(async ({ data }) => {
     await requireAdmin(data.token);
-    await supabaseAdmin.from("orders").update({ status: data.status }).eq("id", data.id);
+    const table = data.table ?? "orders";
+    await (supabaseAdmin.from(table) as any).update({ status: data.status }).eq("id", data.id);
     return { ok: true };
   });
 
@@ -131,7 +133,7 @@ export const adminListAll = createServerFn({ method: "POST" })
   .inputValidator((d: { token: string; table: string }) =>
     z.object({
       token: z.string(),
-      table: z.enum([...ALLOWED_TABLES, "orders"] as const),
+      table: z.enum([...ALLOWED_TABLES, "orders", "prescription_orders"] as const),
     }).parse(d))
   .handler(async ({ data }) => {
     await requireAdmin(data.token);

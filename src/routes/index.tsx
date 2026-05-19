@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ArrowRight, Truck, ShieldCheck, Clock, HeartPulse, Pill, Leaf, Droplets, Baby, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Truck, ShieldCheck, Clock, HeartPulse, Pill, Leaf, Droplets, Baby, Sparkles, Star, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard, type ProductCardData } from "@/components/site/ProductCard";
 import { useScrollReveal } from "@/lib/use-scroll-reveal";
+import { PrescriptionDialog } from "@/components/site/PrescriptionDialog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/")({
 const CAT_ICONS = [Pill, Leaf, Droplets, Baby, Sparkles, HeartPulse, Star, ShieldCheck];
 
 function HomePage() {
+  const [rxOpen, setRxOpen] = useState(false);
   const { data: slides } = useQuery({
     queryKey: ["slides"],
     queryFn: async () => {
@@ -114,6 +116,13 @@ function HomePage() {
               >
                 {hero?.cta_text ?? "Découvrir le catalogue"} <ArrowRight className="h-4 w-4" />
               </Link>
+              <button
+                type="button"
+                onClick={() => setRxOpen(true)}
+                className="inline-flex h-12 items-center gap-2 rounded-2xl glass-2 px-7 text-sm font-display font-semibold hover:bg-primary/8 transition border border-primary/30 text-primary"
+              >
+                <FileText className="h-4 w-4" /> J'ai une ordonnance
+              </button>
               <Link to="/a-propos" className="inline-flex h-12 items-center rounded-2xl glass-2 px-7 text-sm font-display font-semibold hover:bg-primary/8 transition">
                 En savoir plus
               </Link>
@@ -200,6 +209,7 @@ function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {categories.slice(0, 8).map((c, i) => {
               const Icon = CAT_ICONS[i % CAT_ICONS.length];
+              const img = (c as { image_url?: string | null }).image_url;
               return (
                 <Link
                   key={c.id}
@@ -209,9 +219,15 @@ function HomePage() {
                   data-delay={i * 60}
                   className="group glass-2 rounded-3xl p-6 text-center hover:-translate-y-1.5 transition duration-500 hover:bg-primary/5"
                 >
-                  <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:rotate-6 group-hover:scale-110 transition">
-                    <Icon className="h-7 w-7" />
-                  </span>
+                  {img ? (
+                    <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl overflow-hidden bg-primary/10 group-hover:rotate-3 group-hover:scale-110 transition">
+                      <img src={img} alt={c.name} className="h-full w-full object-cover" loading="lazy" />
+                    </span>
+                  ) : (
+                    <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:rotate-6 group-hover:scale-110 transition">
+                      <Icon className="h-7 w-7" />
+                    </span>
+                  )}
                   <div className="mt-3 font-display font-semibold text-sm group-hover:text-primary transition">{c.name}</div>
                 </Link>
               );
@@ -272,6 +288,7 @@ function HomePage() {
           </div>
         </div>
       </section>
+      <PrescriptionDialog open={rxOpen} onClose={() => setRxOpen(false)} />
     </div>
   );
 }

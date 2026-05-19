@@ -1,38 +1,33 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart-store";
 import { formatTND } from "@/lib/format";
+import { submitOrder } from "@/lib/orders.functions";
+import { WILAYAT_TN } from "@/lib/wilayat";
 import { toast } from "sonner";
+import logo from "@/assets/logo.png";
+import { Phone } from "lucide-react";
 
 export const Route = createFileRoute("/commande")({
   head: () => ({ meta: [{ title: "Commande, TuniPharma" }] }),
   component: CheckoutPage,
 });
 
-function Field({ id, label, value, onChange, type = "text", required, textarea }: { id: string; label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; textarea?: boolean }) {
-  return (
-    <div className="field">
-      {textarea ? (
-        <textarea id={id} value={value} placeholder=" " required={required} onChange={(e) => onChange(e.target.value)} />
-      ) : (
-        <input id={id} type={type} value={value} placeholder=" " required={required} onChange={(e) => onChange(e.target.value)} />
-      )}
-      <label htmlFor={id}>{label}{required && " *"}</label>
-    </div>
-  );
-}
-
 function CheckoutPage() {
   const navigate = useNavigate();
   const { items, subtotal, clear } = useCart();
+  const submit = useServerFn(submitOrder);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState<null | "phone" | "whatsapp">(null);
   const [form, setForm] = useState({
-    customer_name: "", customer_phone: "", customer_email: "",
-    address: "", city: "", postal_code: "", notes: "",
+    customer_name: "",
+    customer_phone: "",
+    contact_method: "phone" as "phone" | "whatsapp",
+    wilaya: "",
+    address: "",
   });
 
   const { data: settings } = useQuery({
@@ -48,22 +43,15 @@ function CheckoutPage() {
   const total = sub + fee;
 
   if (done) {
+    const msg = done === "whatsapp"
+      ? "Merci ! Nous vous contacterons prochainement via WhatsApp pour confirmer votre commande."
+      : "Merci ! Nous vous contacterons prochainement par téléphone pour confirmer votre commande.";
     return (
       <div className="container-page py-20">
-        <div className="glass-3 rounded-[32px] p-12 text-center max-w-xl mx-auto" style={{ animation: "floatIn 0.5s cubic-bezier(0.23, 1, 0.32, 1)" }}>
-          <svg className="mx-auto" width="80" height="80" viewBox="0 0 80 80">
-            <circle cx="40" cy="40" r="36" fill="none" stroke="var(--primary)" strokeWidth="3"
-              strokeDasharray="226" strokeDashoffset="226"
-              style={{ animation: "draw 0.7s 0.1s ease-out forwards" }} />
-            <path d="M24 42 L36 54 L58 30" fill="none" stroke="var(--primary)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
-              strokeDasharray="60" strokeDashoffset="60"
-              style={{ animation: "draw 0.4s 0.7s ease-out forwards" }} />
-          </svg>
-          <style>{`@keyframes draw { to { stroke-dashoffset: 0; } }`}</style>
+        <div className="glass-3 rounded-[32px] p-10 md:p-12 text-center max-w-xl mx-auto">
+          <img src={logo} alt="TuniPharma" className="h-16 w-16 mx-auto" />
           <h1 className="font-display text-2xl md:text-3xl font-bold mt-6">Commande reçue</h1>
-          <p className="mt-4 text-base md:text-lg text-foreground leading-relaxed">
-            Merci, nous vous contacterons bientôt pour confirmer votre achat et vous le faire parvenir en toute sécurité.
-          </p>
+          <p className="mt-4 text-base md:text-lg text-foreground leading-relaxed">{msg}</p>
           <Link to="/" className="mt-8 inline-flex h-12 items-center rounded-2xl bg-primary px-7 font-display font-semibold text-primary-foreground hover:bg-primary-glow transition">
             Retour à l'accueil
           </Link>
@@ -81,16 +69,14 @@ function CheckoutPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("orders").insert({
-        order_number: "",
-        ...form,
-        items: items.map((i) => ({ id: i.id, slug: i.slug, name: i.name, price: i.price, quantity: i.quantity })),
-        subtotal: sub,
-        delivery_fee: fee,
-        total,
-      }).select("order_number").single();
-      if (error) throw error;
-      setDone(true);
+      await submit({
+        data: {
+          ...form,
+          items: items.map((i) => ({ id: i.id, slug: i.slug, name: i.name, price: i.price, quantity: i.quantity })),
+          subtotal: sub, delivery_fee: fee, total,
+        },
+      });
+      setDone(form.contact_method);
       clear();
     } catch (err) {
       toast.error("Erreur", { description: (err as Error).message });
@@ -103,16 +89,51 @@ function CheckoutPage() {
     <div className="container-page py-8 md:py-12">
       <h1 className="font-display text-4xl md:text-5xl font-bold mb-8">Finaliser la commande</h1>
       <form onSubmit={onSubmit} className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 glass-3 rounded-[28px] p-7 space-y-4">
+        <div className="lg:col-span-2 glass-3 rounded-[28px] p-7 space-y-5">
           <h2 className="font-display font-bold text-lg">Informations de livraison</h2>
-          <div className="grid md:grid-cols-2 gap-3">
-            <Field id="cn" label="Nom complet" required value={form.customer_name} onChange={(v) => setForm({ ...form, customer_name: v })} />
-            <Field id="cp" label="Téléphone" type="tel" required value={form.customer_phone} onChange={(v) => setForm({ ...form, customer_phone: v })} />
-            <div className="md:col-span-2"><Field id="ce" label="Email (optionnel)" type="email" value={form.customer_email} onChange={(v) => setForm({ ...form, customer_email: v })} /></div>
-            <div className="md:col-span-2"><Field id="ad" label="Adresse" required value={form.address} onChange={(v) => setForm({ ...form, address: v })} /></div>
-            <Field id="ci" label="Ville" required value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
-            <Field id="po" label="Code postal" value={form.postal_code} onChange={(v) => setForm({ ...form, postal_code: v })} />
-            <div className="md:col-span-2"><Field id="no" label="Notes (optionnel)" textarea value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} /></div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">Votre nom et prénom</label>
+            <input required value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
+              className="w-full h-12 px-4 rounded-xl bg-secondary/60 border border-border focus:outline-none focus:ring-2 focus:ring-primary/40" />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">Numéro de téléphone ou WhatsApp</label>
+            <input required type="tel" value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })}
+              className="w-full h-12 px-4 rounded-xl bg-secondary/60 border border-border focus:outline-none focus:ring-2 focus:ring-primary/40" />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">Méthode de contact</label>
+            <div className="grid grid-cols-2 gap-3">
+              {([
+                { v: "phone", label: "Appel téléphonique" },
+                { v: "whatsapp", label: "WhatsApp" },
+              ] as const).map((o) => (
+                <label key={o.v} className={`flex items-center gap-3 h-12 px-4 rounded-xl border cursor-pointer transition ${form.contact_method === o.v ? "border-primary bg-primary/5" : "border-border bg-secondary/60"}`}>
+                  <input type="radio" name="contact_method" checked={form.contact_method === o.v}
+                    onChange={() => setForm({ ...form, contact_method: o.v })}
+                    className="h-4 w-4 accent-[color:var(--primary)]" />
+                  <span className="text-sm font-medium">{o.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">Wilaya</label>
+            <select required value={form.wilaya} onChange={(e) => setForm({ ...form, wilaya: e.target.value })}
+              className="w-full h-12 px-4 rounded-xl bg-secondary/60 border border-border focus:outline-none focus:ring-2 focus:ring-primary/40">
+              <option value="">Choisir votre wilaya…</option>
+              {WILAYAT_TN.map((w) => <option key={w} value={w}>{w}</option>)}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">Adresse exacte où vous souhaitez recevoir le produit</label>
+            <textarea required rows={3} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-secondary/60 border border-border focus:outline-none focus:ring-2 focus:ring-primary/40" />
           </div>
         </div>
 
@@ -131,7 +152,7 @@ function CheckoutPage() {
             <div className="flex justify-between"><span className="text-muted-foreground">Livraison</span><span>{formatTND(fee)}</span></div>
             <div className="flex justify-between font-display font-bold text-lg pt-2 border-t border-primary/15"><span>Total</span><span className="gradient-text">{formatTND(total)}</span></div>
           </div>
-          <p className="text-xs text-muted-foreground">💵 Paiement à la livraison.</p>
+          <p className="text-xs text-muted-foreground"><Phone className="inline h-3 w-3 mr-1" />Paiement à la livraison.</p>
           <button disabled={submitting} type="submit" className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-display font-semibold text-base hover:bg-primary-glow shadow-elegant transition disabled:opacity-50">
             {submitting ? "Envoi..." : "Confirmer la commande"}
           </button>
