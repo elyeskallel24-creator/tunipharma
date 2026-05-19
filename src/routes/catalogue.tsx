@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard, type ProductCardData } from "@/components/site/ProductCard";
 import { Search } from "lucide-react";
@@ -19,6 +19,12 @@ function CataloguePage() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
 
+  const { data: slides } = useQuery({
+    queryKey: ["slides"],
+    queryFn: async () =>
+      (await supabase.from("slider_images").select("*").eq("is_active", true).order("position")).data ?? [],
+  });
+
   const { data: categories } = useQuery({
     queryKey: ["categories-all"],
     queryFn: async () => (await supabase.from("categories").select("*").eq("is_active", true).order("position")).data ?? [],
@@ -36,6 +42,15 @@ function CataloguePage() {
       return (data ?? []) as ProductCardData[];
     },
   });
+
+  const list = slides ?? [];
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    if (list.length < 2) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % list.length), 5500);
+    return () => clearInterval(t);
+  }, [list.length]);
+  const hero = list[idx];
 
   return (
     <div className="container-page py-8 md:py-12">
