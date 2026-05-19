@@ -219,12 +219,15 @@ function TabContent({ token, tab }: { token: string; tab: TabKey }) {
     onError: (e) => toast.error("Erreur", { description: (e as Error).message }),
   });
 
-  if (tab === "orders") {
+  if (tab === "orders" || tab === "prescription_orders") {
+    const isRx = tab === "prescription_orders";
     return (
       <div className="space-y-3">
-        <h2 className="text-2xl font-bold mb-4">Commandes</h2>
+        <h2 className="text-2xl font-bold mb-4">{isRx ? "Commandes avec ordonnance" : "Commandes"}</h2>
         {isLoading ? <div>Chargement…</div> : (data ?? []).length === 0 ? (
           <div className="glass rounded-2xl p-8 text-center text-muted-foreground">Aucune commande pour l'instant.</div>
+        ) : isRx ? (
+          (data as Array<Record<string, unknown>>).map((o) => <PrescriptionOrderCard key={o.id as string} order={o} onStatus={(s) => orderStatusFn({ data: { token, id: o.id as string, status: s, table: "prescription_orders" } }).then(() => qc.invalidateQueries({ queryKey: ["admin-list", "prescription_orders"] }))} />)
         ) : (
           (data as Array<Record<string, unknown>>).map((o) => <OrderCard key={o.id as string} order={o} onStatus={(s) => orderStatusFn({ data: { token, id: o.id as string, status: s } }).then(() => qc.invalidateQueries({ queryKey: ["admin-list", "orders"] }))} />)
         )}
@@ -232,7 +235,7 @@ function TabContent({ token, tab }: { token: string; tab: TabKey }) {
     );
   }
 
-  const fields = FIELDS[tab];
+  const fields = FIELDS[tab as keyof typeof FIELDS];
   const idCol = tab === "settings" ? "key" : "id";
 
   return (
@@ -281,7 +284,7 @@ function TabContent({ token, tab }: { token: string; tab: TabKey }) {
           row={editing}
           categories={categories as Array<{ id: string; name: string }> | undefined}
           types={types as Array<{ id: string; name: string; category_id: string }> | undefined}
-          tab={tab}
+          tab={tab as Exclude<TabKey, "orders" | "prescription_orders">}
           onClose={() => setEditing(null)}
           onSave={(r) => upsertM.mutate(r)}
           saving={upsertM.isPending}
